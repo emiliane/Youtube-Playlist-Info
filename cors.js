@@ -6,12 +6,25 @@ var url3 = 'https://www.youtube.com/watch?v=9Xe6C4iURwo&list=PLycloV5Iov5EKRJhDa
 var list = 'PLycloV5Iov5EKRJhDaMmDTA-uMaasis-S'
 
 var array = await myFetchAsync(list)
-console.log(array)
+//console.log(array)
+
+array = remove_duplicates_safe(array)
+
 
 for (let index = 0; index < array.length; index++) {
     const element = array[index];
-    console.log(index + 1, element)
+    // console.log(index + 1, element)
+    console.log(element[0] + ' ' + element[1])
 }
+
+var niq = [...new Set(array)];
+//console.log(niq)
+
+var uniqueArray = array.filter(function(item, pos, self) {
+    return self.indexOf(item) == pos;
+})
+//console.log(uniqueArray)
+
 
 function yooo(url) {
     var request = new XMLHttpRequest();
@@ -34,7 +47,7 @@ async function myFetchAsync(list) {
     var data = await response.text()
 
     var info = titluriSiId(data)
-    var results = concatNew(results, info)
+    results = concatNew(results, info)
 
     var lastid = info[info.length - 1][0]
 
@@ -62,9 +75,29 @@ async function myFetchAsync(list) {
     return results
 }
 
-function concatNew(a, b) {
-    var c = a.concat(b.filter((item) => a.indexOf(item) < 0))
+function concatNew(array1, array2) {
+    //var c = a.concat(b.filter((item) => a.indexOf(item) < 0))
+    var c = Array.from(new Set(array1.concat(array2)))
     return c
+}
+
+function remove_duplicates_es6(arr) {
+    let s = new Set(arr);
+    let it = s.values();
+    return Array.from(it);
+}
+
+function remove_duplicates_safe(arr) {
+    var seen = {};
+    var ret_arr = [];
+    for (var i = 0; i < arr.length; i++) {
+        if (!(arr[i] in seen)) {
+            ret_arr.push(arr[i]);
+            seen[arr[i]] = true;
+        }
+    }
+    return ret_arr;
+
 }
 
 function split_at_index(value, index) {
