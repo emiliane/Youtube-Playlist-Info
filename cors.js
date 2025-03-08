@@ -1,116 +1,62 @@
-var url1 = 'https://www.youtube.com/playlist?list=PLycloV5Iov5EKRJhDaMmDTA-uMaasis-S'
-var url2 = 'https://www.youtube.com/playlist?list=PLkbJV1pMY4B7i_qQgJWFu4nP9KgI-Cs6w'
+var listID = 'PLycloV5Iov5EKRJhDaMmDTA-uMaasis-S'
+var listID2 = 'PLMtO55TGKXEKk2i-k6GSkD8HvYeCsnSv4'
 
-var url3 = 'https://www.youtube.com/watch?v=9Xe6C4iURwo&list=PLycloV5Iov5EKRJhDaMmDTA-uMaasis-S'
+var array = await getList(listID2)
+showArray(array)
 
-var list = 'PLycloV5Iov5EKRJhDaMmDTA-uMaasis-S'
+async function getList(id) {
+    var url = 'https://www.youtube.com/playlist?list=' + id
+    var list = await getListFirstPart(url)
 
-var array = await myFetchAsync(list)
-//console.log(array)
+    var newLastVideoId = getLastID(list)
+    var oldLastVideoId = ''
+    var multe = 0
+    var max = 44
+    var testMare = 0
+    while (oldLastVideoId != newLastVideoId || multe < max) {
+        if (oldLastVideoId != newLastVideoId) {
+            multe = 0
+        } else {
+            multe = multe + 1
+            if (testMare < multe) {
+                testMare = multe
+                console.log('De câte ori maxim: ' + (multe + 1))
+            }
+        }
+        //console.log('De câte ori: ' + (multe + 1))
+        //console.log(newLastVideoId, oldLastVideoId)
+        url = 'https://www.youtube.com/watch?v=' + newLastVideoId + '&list=' + id
+        console.log(url + ' de ' + (multe + 1))
+        var newList = await getListNextPart(url)
+        list = concatNew(list, newList)
+        oldLastVideoId = newLastVideoId
+        var newLastVideoId = getLastID(list)
+        //console.log(newLastVideoId, oldLastVideoId)
+    }
 
-array = remove_duplicates_safe(array)
-
-
-for (let index = 0; index < array.length; index++) {
-    const element = array[index];
-    // console.log(index + 1, element)
-    console.log(element[0] + ' ' + element[1])
+    return list
 }
 
-var niq = [...new Set(array)];
-//console.log(niq)
-
-var uniqueArray = array.filter(function(item, pos, self) {
-    return self.indexOf(item) == pos;
-})
-//console.log(uniqueArray)
-
-
-function yooo(url) {
-    var request = new XMLHttpRequest();
-    var params = "action=something";
-    request.open('POST', url, true);
-    request.onreadystatechange = function () { if (request.readyState == 4) alert("It worked!"); };
-    request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    request.setRequestHeader("Content-length", params.length);
-    request.setRequestHeader("Connection", "close");
-    request.send(params);
-}
-
-async function myFetchAsync(list) {
-    var results = [];
-
-    var url = 'https://www.youtube.com/playlist?list=' + list
-    //console.log(url)
-
+async function getListFirstPart(url) {
     var response = await fetch(url)
     var data = await response.text()
-
-    var info = titluriSiId(data)
-    results = concatNew(results, info)
-
-    var lastid = info[info.length - 1][0]
-
-    var url = 'https://www.youtube.com/watch?v=' + lastid + '&list=' + list
-    //console.log(url)
-
-    response = await fetch(url)
-    data = await response.text()
-
-    info = t222222222(data)
-    results = concatNew(results, info)
-
-    lastid = info[info.length - 1][0]
-
-    url = 'https://www.youtube.com/watch?v=' + lastid + '&list=' + list
-    //console.log(url)
-
-    response = await fetch(url)
-    data = await response.text()
-
-    info = t222222222(data)
-    results = concatNew(results, info)
-
-    //console.log(results)
-    return results
+    var list = titluriSiId(data)
+    return list
 }
 
-function concatNew(array1, array2) {
-    //var c = a.concat(b.filter((item) => a.indexOf(item) < 0))
-    var c = Array.from(new Set(array1.concat(array2)))
-    return c
+
+async function getListNextPart(url) {
+    var response = await fetch(url)
+    var data = await response.text()
+    var list = t222222222(data)
+
+    return list
 }
 
-function remove_duplicates_es6(arr) {
-    let s = new Set(arr);
-    let it = s.values();
-    return Array.from(it);
-}
-
-function remove_duplicates_safe(arr) {
-    var seen = {};
-    var ret_arr = [];
-    for (var i = 0; i < arr.length; i++) {
-        if (!(arr[i] in seen)) {
-            ret_arr.push(arr[i]);
-            seen[arr[i]] = true;
-        }
-    }
-    return ret_arr;
-
-}
-
-function split_at_index(value, index) {
-    return value.substring(0, index) + "," + value.substring(index);
-}
-
-function split_from_index_to_index(value, index1, index2) {
-    return value.substring(index1, index2)
-}
-
-function find(sourceStr, searchStr) {
-    const indexes = [...sourceStr.matchAll(new RegExp(searchStr, 'gi'))].map(a => a.index);
-    return indexes
+function getLastID(array) {
+    //console.log(array)
+    var lastid = array[array.length - 1][0]
+    return lastid
 }
 
 function titluriSiId(data) {
@@ -156,9 +102,46 @@ function t222222222(data) {
         title = title.substring(title.indexOf(':') + 2, title.indexOf('"},"'))
         var videoId = render.substring(render.indexOf('videoId'))
         videoId = videoId.substring(videoId.indexOf(':') + 2, videoId.indexOf('",'))
-        //console.log(i + 1, videoId, title)
         var video = [videoId, title]
         info.push(video)
     }
     return info
+}
+
+function split_at_index(value, index) {
+    return value.substring(0, index) + "," + value.substring(index);
+}
+
+function split_from_index_to_index(value, index1, index2) {
+    return value.substring(index1, index2)
+}
+
+function find(sourceStr, searchStr) {
+    const indexes = [...sourceStr.matchAll(new RegExp(searchStr, 'gi'))].map(a => a.index);
+    return indexes
+}
+
+function concatNew(firstArray, secondArray) {
+    var result = [...new Set([...firstArray, ...secondArray])]
+    result = remove_duplicates_safe(result)
+    return result
+}
+
+function remove_duplicates_safe(arr) {
+    var seen = {};
+    var ret_arr = [];
+    for (var i = 0; i < arr.length; i++) {
+        if (!(arr[i] in seen)) {
+            ret_arr.push(arr[i]);
+            seen[arr[i]] = true;
+        }
+    }
+    return ret_arr;
+}
+
+function showArray(array) {
+    for (let index = 0; index < array.length; index++) {
+        const element = array[index];
+        console.log(element[0] + ' ' + element[1], '|', index + 1)
+    }
 }
