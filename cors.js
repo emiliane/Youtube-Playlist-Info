@@ -1,10 +1,13 @@
+var startTime = new Date();
+
+
 var listID = 'PLycloV5Iov5EKRJhDaMmDTA-uMaasis-S'
 var listID2 = 'PLMtO55TGKXEKk2i-k6GSkD8HvYeCsnSv4'
 
-var array = await getList(listID2)
+var array = await getYoutubePlayListInfo(listID2)
 showArray(array)
 
-async function getList(id) {
+async function getYoutubePlayListInfo(id) {
     var url = 'https://www.youtube.com/playlist?list=' + id
     var list = await getListFirstPart(url)
 
@@ -27,6 +30,7 @@ async function getList(id) {
         //console.log(newLastVideoId, oldLastVideoId)
         url = 'https://www.youtube.com/watch?v=' + newLastVideoId + '&list=' + id
         console.log(url + ' de ' + (multe + 1))
+        endTimeDifference()
         var newList = await getListNextPart(url)
         list = concatNew(list, newList)
         oldLastVideoId = newLastVideoId
@@ -140,8 +144,22 @@ function remove_duplicates_safe(arr) {
 }
 
 function showArray(array) {
+    const zeroPad = (num, places) => String(num).padStart(places, '0')
+    var numberDigits = array.length.toString().length;
+
     for (let index = 0; index < array.length; index++) {
         const element = array[index];
-        console.log(element[0] + ' ' + element[1], '|', index + 1)
+        console.log(element[0] + ' ' + element[1] + ' | ' + zeroPad(index + 1, numberDigits))
     }
 }
+
+function endTimeDifference() {
+    var endTime = new Date();
+    var timeDiff = endTime - startTime; //in ms
+    // strip the ms
+    timeDiff /= 1000;
+  
+    // get seconds 
+    var seconds = Math.round(timeDiff);
+    console.log(seconds + " seconds");
+  }
